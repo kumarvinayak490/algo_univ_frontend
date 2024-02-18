@@ -9,7 +9,7 @@ const Container = ({ children, className, ...rest }: ContainerProps) => {
   console.log(import.meta.env.BASE_URL);
   return (
     <div
-      className={classNames("min-h-[calc(100vh-5rem)] container", className)}
+      className={classNames("min-h-[calc(100vh-5rem)]", className)}
       {...rest}
     >
       {children}

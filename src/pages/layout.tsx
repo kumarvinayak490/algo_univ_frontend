@@ -17,8 +17,8 @@ const Layout = ({ children }: Props) => {
   }, [theme]);
 
   return (
-    <section className="bg-gray-50 dark:bg-gray-800">
-      <nav className="h-20 px-14  bg-slate-100 dark:bg-slate-900 flex justify-between items-center ">
+    <section className="bg-gray-50 dark:bg-slate-900 ">
+      <nav className="h-20 px-14  bg-slate-100 dark:bg-gray-900 border-b border-gray-700  flex justify-between items-center ">
         <div>
           <h1 className="dark:text-gray-100 text-gray-800 font-sans font-bold">
             Vinayak IDE
