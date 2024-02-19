@@ -19,7 +19,7 @@ class ApiClient {
 
   private _getClient(baseURL?: string): AxiosInstance {
     const apiClient = axios.create({
-      baseURL: baseURL || "http://localhost:8000/api",
+      baseURL: baseURL || "http://13.235.146.28/api",
     });
     apiClient.interceptors.request.use(
       async (config: InternalAxiosRequestConfig) => {

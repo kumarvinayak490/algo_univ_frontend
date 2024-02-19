@@ -1,13 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
-import { login } from "../../api/auth/index";
+import { login, register } from "../../api/auth/index";
+import classNames from "classnames";
+import { toast } from "react-toastify";
 
 export const AuthComponent = () => {
   const [isNewUser, setIsNewUser] = useState(false);
   const navigate = useNavigate();
+  const [errors, setErrors] = useState<Array<string>>([]);
 
   const additionalFields = useMemo(() => {
-    if (isNewUser) return ["hello"];
+    if (isNewUser) return ["new user"];
     return [];
   }, [isNewUser]);
 
@@ -33,19 +37,43 @@ export const AuthComponent = () => {
             const username = (target.username as HTMLInputElement).value;
             const password = (target.password as HTMLInputElement).value;
             if (!username || !password) return;
+
+            const email = isNewUser
+              ? (target.email as HTMLInputElement).value
+              : null;
             try {
-              const res = await login<{ access: string; refresh: string }>({
-                username,
-                password,
+              console.log("hello");
+              if (!email) {
+                const res = await login<{ access: string; refresh: string }>({
+                  username,
+                  password,
+                });
+                localStorage.setItem("token", JSON.stringify(res.access));
+                localStorage.setItem("refresh", JSON.stringify(res.refresh));
+                navigate("/editor");
+              } else {
+                await register({
+                  username,
+                  password,
+                  email,
+                });
+                (target.username as HTMLInputElement).value = "";
+                (target.password as HTMLInputElement).value = "";
+                (target.email as HTMLInputElement).value = "";
+                toast.success("User Created Successfully, Please login");
+                setIsNewUser(false);
+              }
+            } catch (err: any) {
+              if (
+                err?.response?.data &&
+                typeof err?.response?.data === "object"
+              )
+                setErrors(Object.keys(err.response.data));
+              Object.keys(err.response.data).forEach((value) => {
+                toast.error(err.response.data[value][0]);
               });
-              localStorage.setItem("token", JSON.stringify(res.access));
-              localStorage.setItem("refresh", JSON.stringify(res.refresh));
-              navigate("/editor");
-            } catch (err) {
-              console.log(err);
             }
           }}
-          noValidate
           className="space-y-4 md:space-y-6"
           action="#"
         >
@@ -53,18 +81,29 @@ export const AuthComponent = () => {
             return (
               <div>
                 <label
-                  htmlFor="fullnameame"
+                  htmlFor="email"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Full Name
+                  Email
                 </label>
                 <input
-                  type="text"
-                  name="fullname"
-                  id="fullname"
-                  placeholder="Vinayak"
+                  type="email"
+                  required
+                  name="email"
+                  id="email"
+                  placeholder="vinayak@gmail.com"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 />
+                <span
+                  className={classNames(
+                    "pt-1 text-xs font-semibold text-gray-100 transition-all duration-200 ease-in-out",
+                    errors.includes("email")
+                      ? "opacity-100 block "
+                      : "opacity-0 hidden"
+                  )}
+                >
+                  Email Error
+                </span>
               </div>
             );
           })}
@@ -73,15 +112,26 @@ export const AuthComponent = () => {
               htmlFor="username"
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
-              Your email
+              Your username
             </label>
             <input
               type="username"
               name="username"
               id="username"
+              required
               className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="vinayak490"
             />
+            <span
+              className={classNames(
+                "pt-1 text-xs font-semibold text-gray-100 transition-all duration-200 ease-in-out",
+                errors.includes("username")
+                  ? "opacity-100 block "
+                  : "opacity-0 hidden"
+              )}
+            >
+              Username Error
+            </span>
           </div>
           <div>
             <label
@@ -92,11 +142,22 @@ export const AuthComponent = () => {
             </label>
             <input
               type="password"
+              required
               name="password"
               id="password"
               placeholder="••••••••"
               className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             />
+            <span
+              className={classNames(
+                "pt-1 text-xs font-semibold text-gray-100 transition-all duration-200 ease-in-out",
+                errors.includes("password")
+                  ? "opacity-100 block "
+                  : "opacity-0 hidden"
+              )}
+            >
+              Password Error
+            </span>
           </div>
           <button
             type="submit"

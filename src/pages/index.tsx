@@ -1,3 +1,4 @@
+import { ToastContainer } from "react-toastify";
 import AuthComponent from "../component/SignIn";
 import Container from "../component/common/Container";
 import Layout from "./layout";
@@ -5,6 +6,7 @@ import Layout from "./layout";
 const IndexPage = () => {
   return (
     <Layout>
+      <ToastContainer />
       <Container className="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0">
         <a
           href="#"
