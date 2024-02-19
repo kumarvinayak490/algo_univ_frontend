@@ -5,10 +5,11 @@ import MonacoEditor from "@monaco-editor/react";
 import { CiPlay1 } from "react-icons/ci";
 import Container from "../../component/common/Container";
 import Layout from "../layout";
-import { runCode } from "../../api/ide";
+import { getResult, runCode } from "../../api/ide";
 
 const Editor = () => {
   const [code, setCode] = useState("#write your code");
+  const [taskId, setTaskId] = useState("");
   // Todo
   // const [containerHeight, setContainerHeight] = useState(0);
   // const editorContainerRef = useCallback((node: HTMLDivElement) => {
@@ -23,11 +24,12 @@ const Editor = () => {
       const decoded = jwtDecode<{ user_id: string; username: string }>(token);
       console.log(decoded);
       try {
-        await runCode({
+        const res = await runCode<{ task_id: string }>({
           code,
           language: "python",
           user: decoded.user_id,
         });
+        setTaskId(res.task_id);
       } catch (err) {
         console.log(err);
       }
@@ -122,7 +124,20 @@ const Editor = () => {
             />
           </div>
         </div>
-        <div className="h-full w-2/5 "></div>
+        <div className="h-full w-2/5 flex items-center justify-center ">
+          {taskId && (
+            <button
+              onClick={async () => {
+                const res = await getResult(taskId);
+                console.log(res);
+              }}
+              type="button"
+              className="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+            >
+              Green
+            </button>
+          )}
+        </div>
       </Container>
     </Layout>
   );

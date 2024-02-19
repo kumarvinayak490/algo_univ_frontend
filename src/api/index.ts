@@ -46,12 +46,15 @@ class ApiClient {
         if (error.response.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
           try {
-            const refresh = localStorage.getItem("refreshToken");
+            const refresh = localStorage.getItem("refresh")
+              ? JSON.parse(localStorage.getItem("refresh") as string)
+              : null;
             const response = await apiClient.post("/token/refresh/", {
               refresh,
             });
-            const { token } = response.data;
+            const { token, refresh: newRfresh } = response.data;
             localStorage.setItem("token", token);
+            localStorage.setItem("refresh", newRfresh);
             // Retry the original request with the new token
             originalRequest.headers.Authorization = `Bearer ${token}`;
             return apiClient(originalRequest);

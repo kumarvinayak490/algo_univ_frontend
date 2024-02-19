@@ -1,4 +1,4 @@
-import { post } from "../index";
+import { post, get } from "../index";
 
 export const runCode = <T>({
   code,
@@ -10,4 +10,8 @@ export const runCode = <T>({
   user: string;
 }) => {
   return post<T>("/submissions/submit-code/", { code, language, user });
+};
+
+export const getResult = (task_id: string) => {
+  return get(`/submissions/get-result/${task_id}`);
 };

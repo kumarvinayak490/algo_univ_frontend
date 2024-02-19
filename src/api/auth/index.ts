@@ -7,5 +7,5 @@ export const login = <T>({
   username: string;
   password: string;
 }) => {
-  return post<T>("/token/", { username, password });
+  return post<T>("/auth/token/", { username, password });
 };
