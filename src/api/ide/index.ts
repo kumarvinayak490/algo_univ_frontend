@@ -12,6 +12,6 @@ export const runCode = <T>({
   return post<T>("/submissions/submit-code/", { code, language, user });
 };
 
-export const getResult = (task_id: string) => {
-  return get(`/submissions/get-result/${task_id}`);
+export const getResult = <T>(task_id: string) => {
+  return get<T>(`/submissions/get-result/${task_id}`);
 };

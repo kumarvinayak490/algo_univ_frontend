@@ -9,7 +9,9 @@ import { getResult, runCode } from "../../api/ide";
 
 const Editor = () => {
   const [code, setCode] = useState("#write your code");
-  const [taskId, setTaskId] = useState("");
+  const [taskStatus, setTaskStatus] = useState("");
+  const [result, setResult] = useState("");
+
   // Todo
   // const [containerHeight, setContainerHeight] = useState(0);
   // const editorContainerRef = useCallback((node: HTMLDivElement) => {
@@ -17,6 +19,26 @@ const Editor = () => {
   //     setContainerHeight(node.offsetHeight);
   //   }
   // }, []);
+
+  const monitorTaskStatus = async (taskId: string) => {
+    try {
+      const response = await getResult<{ status: string; result: string }>(
+        taskId
+      );
+      const { status, result } = response;
+      setTaskStatus(status);
+      if (status === "SUCCESS") {
+        setTaskStatus(status);
+        setResult(result);
+      } else if (status === "PENDING" || status === "STARTED") {
+        setTimeout(() => {
+          monitorTaskStatus(taskId);
+        }, 1000); // Poll every 1 second
+      }
+    } catch (error) {
+      console.error("Error monitoring task status:", error);
+    }
+  };
 
   const handleRunCode = async () => {
     const token = JSON.parse(localStorage.getItem("token") || '""');
@@ -29,7 +51,7 @@ const Editor = () => {
           language: "python",
           user: decoded.user_id,
         });
-        setTaskId(res.task_id);
+        monitorTaskStatus(res.task_id);
       } catch (err) {
         console.log(err);
       }
@@ -115,7 +137,7 @@ const Editor = () => {
                 // Enable suggestions on trigger characters
                 suggestOnTriggerCharacters: true,
               }}
-              height="75vh"
+              height="70vh"
               language="python"
               theme="vs-dark"
               value={code}
@@ -124,19 +146,34 @@ const Editor = () => {
             />
           </div>
         </div>
-        <div className="h-full w-2/5 flex items-center justify-center ">
-          {taskId && (
-            <button
-              onClick={async () => {
-                const res = await getResult(taskId);
-                console.log(res);
-              }}
-              type="button"
-              className="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-            >
-              Green
-            </button>
-          )}
+        <div className="h-full w-2/5 flex flex-col  ">
+          <div className="bg-gray-800 border-l border-l-cyan-800 p-4 flex items-center justify-between ">
+            <h1 className="text-xl text-gray-100 flex items-center gap-x-4">
+              Output:
+              {taskStatus && (
+                <span className="text-gray-50  font-medium rounded-full text-sm px-5 py-2.5 text-center    bg-gray-900 flex items-center  gap-2 hover:bg-gray-700">
+                  {taskStatus}
+                </span>
+              )}
+            </h1>
+            <div>
+              <button
+                onClick={() => {
+                  setResult("");
+                  setTaskStatus("");
+                }}
+                type="button"
+                className="py-2.5 px-5 me-2  text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+              >
+                Clear Console
+              </button>
+            </div>
+          </div>
+          <div className="bg-slate-600 flex-1">
+            <div className="w-full h-full bg-gray-700 p-4">
+              <h1 className="text-gray-200">{result}</h1>
+            </div>
+          </div>
         </div>
       </Container>
     </Layout>
