@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef } from "react";
+import { jwtDecode } from "jwt-decode";
 import MonacoEditor from "@monaco-editor/react";
 import { CiPlay1 } from "react-icons/ci";
 import Container from "../../component/common/Container";
 import Layout from "../layout";
+import { runCode } from "../../api/ide";
 
 const Editor = () => {
   const [code, setCode] = useState("#write your code");
@@ -14,6 +16,23 @@ const Editor = () => {
   //     setContainerHeight(node.offsetHeight);
   //   }
   // }, []);
+
+  const handleRunCode = async () => {
+    const token = JSON.parse(localStorage.getItem("token") || '""');
+    if (token) {
+      const decoded = jwtDecode<{ user_id: string; username: string }>(token);
+      console.log(decoded);
+      try {
+        await runCode({
+          code,
+          language: "python",
+          user: decoded.user_id,
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  };
 
   const editorRef = useRef<any>(null);
 
@@ -28,6 +47,7 @@ const Editor = () => {
         <div className="h-full w-3/5   ">
           <div className="w-full p-2 py-4 bg-gray-800 border-b border-cyan-700 flex justify-between items-center  ">
             <button
+              onClick={handleRunCode}
               type="button"
               className="text-gray-50  font-medium rounded-full text-sm px-5 py-2.5 text-center me-2   bg-gray-700 flex items-center  gap-2 hover:bg-gray-700"
             >

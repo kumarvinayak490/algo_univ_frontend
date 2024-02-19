@@ -39,6 +39,7 @@ export const AuthComponent = () => {
                 password,
               });
               localStorage.setItem("token", JSON.stringify(res.access));
+              localStorage.setItem("refresh", JSON.stringify(res.refresh));
               navigate("/editor");
             } catch (err) {
               console.log(err);

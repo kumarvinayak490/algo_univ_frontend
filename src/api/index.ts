@@ -39,14 +39,27 @@ class ApiClient {
       async (response: AxiosResponse) => {
         return response.data;
       },
-      (err: AxiosError) => {
-        if (err.response) {
-          if (err.response.status === 401) {
-            localStorage.removeItem("token");
+      async (error) => {
+        const originalRequest = error.config;
+        // If the error status is 401 and there is no originalRequest._retry flag,
+        // it means the token has expired and we need to refresh it
+        if (error.response.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          try {
+            const refresh = localStorage.getItem("refreshToken");
+            const response = await apiClient.post("/token/refresh/", {
+              refresh,
+            });
+            const { token } = response.data;
+            localStorage.setItem("token", token);
+            // Retry the original request with the new token
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return apiClient(originalRequest);
+          } catch (error) {
+            return Promise.reject(error);
           }
-          return Promise.reject(err);
         }
-        return Promise.reject(err);
+        return Promise.reject(error);
       }
     );
 
