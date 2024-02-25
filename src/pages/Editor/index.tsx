@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef } from "react";
-import { jwtDecode } from "jwt-decode";
 import MonacoEditor from "@monaco-editor/react";
 import { CiPlay1 } from "react-icons/ci";
 import Container from "../../component/common/Container";
@@ -43,20 +42,14 @@ printMyName()`);
   };
 
   const handleRunCode = async () => {
-    const token = JSON.parse(localStorage.getItem("token") || '""');
-    if (token) {
-      const decoded = jwtDecode<{ user_id: string; username: string }>(token);
-      console.log(decoded);
-      try {
-        const res = await runCode<{ task_id: string }>({
-          code,
-          language: "python",
-          user: decoded.user_id,
-        });
-        monitorTaskStatus(res.task_id);
-      } catch (err) {
-        console.log(err);
-      }
+    try {
+      const res = await runCode<{ task_id: string }>({
+        code,
+        language: "python",
+      });
+      monitorTaskStatus(res.task_id);
+    } catch (err) {
+      console.log(err);
     }
   };
 
