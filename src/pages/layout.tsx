@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FaMoon } from "react-icons/fa";
 
 type Props = {
   children: React.ReactNode;
 };
 
 const Layout = ({ children }: Props) => {
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [theme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
     if (theme === "dark") {
@@ -24,7 +23,7 @@ const Layout = ({ children }: Props) => {
             Vinayak IDE
           </h1>
         </div>
-        <ul>
+        {/* <ul>
           <li>
             <button
               onClick={() =>
@@ -39,7 +38,7 @@ const Layout = ({ children }: Props) => {
               <FaMoon className="dark:text-blue-200 text-blue-600" />
             </button>
           </li>
-        </ul>
+        </ul> */}
       </nav>
       {children}
     </section>

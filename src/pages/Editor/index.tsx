@@ -8,7 +8,9 @@ import Layout from "../layout";
 import { getResult, runCode } from "../../api/ide";
 
 const Editor = () => {
-  const [code, setCode] = useState("#write your code");
+  const [code, setCode] = useState(`def printMyName():
+    print("Vinayak")
+printMyName()`);
   const [taskStatus, setTaskStatus] = useState("");
   const [result, setResult] = useState("");
 
